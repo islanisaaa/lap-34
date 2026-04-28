@@ -279,7 +279,6 @@
         const claimBtn = document.getElementById('claimBtn');
         const startOverlay = document.getElementById('startOverlay');
         const awardOverlay = document.getElementById('awardOverlay');
-        const track = document.getElementById('track');
         const redCar = document.getElementById('red-car');
         const blueCar = document.getElementById('blue-car');
         const timerText = document.getElementById('timer');
@@ -287,7 +286,6 @@
         const dialogue = document.getElementById('dialogue');
         const messageText = document.getElementById('message-text');
 
-        // Music Synthesizer
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playNote(freq, duration, type = 'square') {
             const osc = audioCtx.createOscillator();
@@ -309,7 +307,7 @@
             });
         }
 
-        const message = "ZIEL! YOU ARE THE CHAMPION! 🏆<br><br>Happy 34th Birthday, Roy! 🏁<br><br>Congrats on finishing Lap 33! May Lap 34 be a journey filled with wins, good health, and so much love.<br><br>Keep going fast and chase everything you want. I’m always on your team, supporting you every step (and every lap) of the way.<br><br>Love you to the finish line and back! 🏎️💨";
+        const message = "Happy 34th Birthday, Roy! 🏁<br><br>Congrats on finishing Lap 33! May Lap 34 be a journey filled with wins, good health, and so much love.<br><br>Keep going fast and chase everything you want. I’m always on your team, supporting you every step (and every lap) of the way.<br><br>Love you to the finish line and back! ❤️🏎️🏁";
 
         function typeWriter(text, i, fnCallback) {
             if (i < text.length) {
@@ -330,29 +328,22 @@
             if (audioCtx.state === 'suspended') audioCtx.resume();
             startOverlay.style.display = 'none';
             document.getElementById('gameArea').classList.add('racing');
-            
             redCar.style.left = '20px';
             blueCar.style.left = '20px';
-
             let startTime = Date.now();
             let raceInterval = setInterval(() => {
                 let elapsed = Date.now() - startTime;
                 let display = (elapsed / 1000).toFixed(2);
                 timerText.innerText = display.padStart(5, '0');
-
                 if (Math.random() > 0.97) playNote(80 + Math.random()*40, 0.1, 'sawtooth');
-
                 if (elapsed < 4000) {
                     blueCar.style.left = (30 + Math.sin(elapsed/400)*40) + 'px';
                     redCar.style.left = (30 + Math.cos(elapsed/400)*30) + 'px';
                 } else if (elapsed < 7000) {
-                    blueCar.style.left = '120px';
-                    redCar.style.left = '60px';
+                    blueCar.style.left = '120px'; redCar.style.left = '60px';
                 } else if (elapsed < 10000) {
-                    redCar.style.left = '180px';
-                    blueCar.style.left = '80px';
+                    redCar.style.left = '180px'; blueCar.style.left = '80px';
                 }
-
                 if (elapsed >= 10000) {
                     clearInterval(raceInterval);
                     finishRace();
@@ -362,14 +353,11 @@
 
         function finishRace() {
             finishLine.style.right = '0px';
-            
             setTimeout(() => {
                 redCar.style.transition = 'left 1.2s ease-in';
                 redCar.style.left = '150%';
-                
                 blueCar.classList.add('crash');
                 playNote(60, 0.6, 'sawtooth'); 
-                
                 setTimeout(() => {
                     document.getElementById('gameArea').classList.remove('racing');
                     awardOverlay.style.display = 'flex';
@@ -378,118 +366,42 @@
             }, 500);
         }
 
-        function typeWriter(text, i, fnCallback) {
-            if (i < text.length) {
-                if (text.substring(i, i + 4) === '<br>') {
-                    messageText.innerHTML += '<br>';
-                    i += 4;
-                } else {
-                    messageText.innerHTML += text.charAt(i);
-                    i++;
-                }
-                setTimeout(() => typeWriter(text, i, fnCallback), 50);
-            } else if (typeof fnCallback == 'function') {
-                fnCallback();
-            }
-        }
+        // FUNGSI HUJAN LOVE MANUAL (PASTI JALAN)
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.innerHTML = Math.random() > 0.5 ? '❤️' : '💙';
+            heart.style.position = 'absolute';
+            heart.style.left = Math.random() * 100 + '%';
+            heart.style.top = '-50px';
+            heart.style.fontSize = (Math.random() * 20 + 20) + 'px';
+            heart.style.zIndex = '1500';
+            heart.style.pointerEvents = 'none';
+            heart.style.transition = 'transform 3s linear, opacity 3s linear';
+            document.getElementById('gameArea').appendChild(heart);
 
-        startBtn.addEventListener('click', () => {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            startOverlay.style.display = 'none';
-            document.getElementById('gameArea').classList.add('racing');
-            
-            redCar.style.left = '20px';
-            blueCar.style.left = '20px';
-
-            let startTime = Date.now();
-            let raceInterval = setInterval(() => {
-                let elapsed = Date.now() - startTime;
-                let display = (elapsed / 1000).toFixed(2);
-                timerText.innerText = display.padStart(5, '0');
-
-                if (Math.random() > 0.97) playNote(80 + Math.random()*40, 0.1, 'sawtooth');
-
-                if (elapsed < 4000) {
-                    blueCar.style.left = (30 + Math.sin(elapsed/400)*40) + 'px';
-                    redCar.style.left = (30 + Math.cos(elapsed/400)*30) + 'px';
-                } else if (elapsed < 7000) {
-                    blueCar.style.left = '120px';
-                    redCar.style.left = '60px';
-                } else if (elapsed < 10000) {
-                    redCar.style.left = '180px';
-                    blueCar.style.left = '80px';
-                }
-
-                if (elapsed >= 10000) {
-                    clearInterval(raceInterval);
-                    finishRace();
-                }
-            }, 50);
-        });
-
-        function finishRace() {
-            finishLine.style.right = '0px';
-            
             setTimeout(() => {
-                redCar.style.transition = 'left 1.2s ease-in';
-                redCar.style.left = '150%';
-                
-                blueCar.classList.add('crash');
-                playNote(60, 0.6, 'sawtooth'); 
-                
-                setTimeout(() => {
-                    document.getElementById('gameArea').classList.remove('racing');
-                    awardOverlay.style.display = 'flex';
-                    playVictoryTheme();
-                }, 1000);
-            }, 500);
+                heart.style.transform = `translateY(800px) rotate(${Math.random() * 360}deg)`;
+                heart.style.opacity = '0';
+            }, 100);
+
+            setTimeout(() => heart.remove(), 3100);
         }
 
         claimBtn.addEventListener('click', () => {
             awardOverlay.style.display = 'none';
             dialogue.style.display = 'block';
             
+            // Jalankan Hujan Love
+            const heartInterval = setInterval(createHeart, 200);
+            setTimeout(() => clearInterval(heartInterval), 6000);
+
             typeWriter(message, 0, () => {
-                const duration = 6 * 1000; 
+                const duration = 6 * 1000;
                 const end = Date.now() + duration;
-
                 (function frame() {
-                    // Confetti Love ❤️💙 (Dibuat lebih sering muncul)
-                    confetti({
-                        particleCount: 3,
-                        angle: Math.random() * 360,
-                        spread: 150,
-                        origin: { x: Math.random(), y: Math.random() - 0.2 },
-                        shapes: ['text'],
-                        shapeOptions: {
-                            text: {
-                                value: ['❤️', '💙', '💖', '🏁'] 
-                            }
-                        },
-                        scalar: 3 
-                    });
-
-                    // Confetti Merah Kiri
-                    confetti({
-                        particleCount: 2,
-                        angle: 60,
-                        spread: 55,
-                        origin: { x: 0 },
-                        colors: ['#e63946', '#ffffff']
-                    });
-
-                    // Confetti Biru Kanan
-                    confetti({
-                        particleCount: 2,
-                        angle: 120,
-                        spread: 55,
-                        origin: { x: 1 },
-                        colors: ['#0066cc', '#ffffff']
-                    });
-
-                    if (Date.now() < end) {
-                        requestAnimationFrame(frame);
-                    }
+                    confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#e63946', '#ffffff'] });
+                    confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#0066cc', '#ffffff'] });
+                    if (Date.now() < end) requestAnimationFrame(frame);
                 }());
             });
         });
