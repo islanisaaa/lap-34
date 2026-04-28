@@ -279,6 +279,7 @@
         const claimBtn = document.getElementById('claimBtn');
         const startOverlay = document.getElementById('startOverlay');
         const awardOverlay = document.getElementById('awardOverlay');
+        const track = document.getElementById('track');
         const redCar = document.getElementById('red-car');
         const blueCar = document.getElementById('blue-car');
         const timerText = document.getElementById('timer');
@@ -286,6 +287,7 @@
         const dialogue = document.getElementById('dialogue');
         const messageText = document.getElementById('message-text');
 
+        // Music Synthesizer
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playNote(freq, duration, type = 'square') {
             const osc = audioCtx.createOscillator();
@@ -307,7 +309,7 @@
             });
         }
 
-        const message = "Happy 34th Birthday, Roy! 🏁<br><br>Congrats on finishing Lap 33! May Lap 34 be a journey filled with wins, good health, and so much love.<br><br>Keep going fast and chase everything you want. I’m always on your team, supporting you every step (and every lap) of the way.<br><br>Love you to the finish line and back! ❤️🏎️🏁";
+        const message = "ZIEL! YOU ARE THE CHAMPION! 🏆<br><br>Happy 34th Birthday, Roy! 🏁<br><br>Congrats on finishing Lap 33! May Lap 34 be a journey filled with wins, good health, and so much love.<br><br>Keep going fast and chase everything you want. I’m always on your team, supporting you every step (and every lap) of the way.<br><br>Love you to the finish line and back! 🏎️💨";
 
         function typeWriter(text, i, fnCallback) {
             if (i < text.length) {
@@ -380,54 +382,47 @@
             awardOverlay.style.display = 'none';
             dialogue.style.display = 'block';
             
-            // 1. Teks mulai mengetik...
             typeWriter(message, 0, () => {
-                // 2. SETELAH TEKS SELESAI, BARU MELEDAK DI SINI!
-                const duration = 6 * 1000;
+                // Konfigurasi durasi confetti
+                const duration = 5 * 1000;
                 const end = Date.now() + duration;
 
-                // Definisi bentuk pixel kotak agar nuansanya retro
-                var pixels = confetti.shapeFromPath({ path: 'M0 0 L10 0 L10 10 L0 10 Z' });
-
                 (function frame() {
-                    // LEDAKAN KIRI (Merah + Hati Merah)
+                    // Confetti Sisi Kiri (Merah-Putih)
                     confetti({
                         particleCount: 2,
                         angle: 60,
                         spread: 55,
-                        origin: { x: 0, y: 0.8 },
+                        origin: { x: 0 },
                         colors: ['#e63946', '#ffffff'],
-                        shapes: [pixels],
-                        scalar: 1.1
+                        shapes: ['circle'], // Bentuk bulat pixel
+                        scalar: 1.2
                     });
+                    
+                    // Confetti Love (Emoji Hati)
                     confetti({
                         particleCount: 1,
-                        angle: 60,
-                        spread: 40,
-                        origin: { x: 0, y: 0.8 },
+                        angle: Math.random() * 360,
+                        spread: 100,
+                        origin: { x: Math.random(), y: Math.random() - 0.2 },
                         shapes: ['text'],
-                        shapeOptions: { text: { value: ['❤️', '💖'] } },
-                        scalar: 2.5
+                        shapeOptions: {
+                            text: {
+                                value: ['❤️', '💙'] // Hati Merah & Biru sesuai warna mobil
+                            }
+                        },
+                        scalar: 2
                     });
 
-                    // LEDAKAN KANAN (Biru + Hati Biru)
+                    // Confetti Sisi Kanan (Biru-Putih)
                     confetti({
                         particleCount: 2,
                         angle: 120,
                         spread: 55,
-                        origin: { x: 1, y: 0.8 },
+                        origin: { x: 1 },
                         colors: ['#0066cc', '#ffffff'],
-                        shapes: [pixels],
-                        scalar: 1.1
-                    });
-                    confetti({
-                        particleCount: 1,
-                        angle: 120,
-                        spread: 40,
-                        origin: { x: 1, y: 0.8 },
-                        shapes: ['text'],
-                        shapeOptions: { text: { value: ['💙', '🩵'] } },
-                        scalar: 2.5
+                        shapes: ['circle'],
+                        scalar: 1.2
                     });
 
                     if (Date.now() < end) {
@@ -436,6 +431,7 @@
                 }());
             });
         });
+
     </script>
 </body>
 </html>
