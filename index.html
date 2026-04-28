@@ -328,22 +328,29 @@
             if (audioCtx.state === 'suspended') audioCtx.resume();
             startOverlay.style.display = 'none';
             document.getElementById('gameArea').classList.add('racing');
+            
             redCar.style.left = '20px';
             blueCar.style.left = '20px';
+
             let startTime = Date.now();
             let raceInterval = setInterval(() => {
                 let elapsed = Date.now() - startTime;
                 let display = (elapsed / 1000).toFixed(2);
                 timerText.innerText = display.padStart(5, '0');
+
                 if (Math.random() > 0.97) playNote(80 + Math.random()*40, 0.1, 'sawtooth');
+
                 if (elapsed < 4000) {
                     blueCar.style.left = (30 + Math.sin(elapsed/400)*40) + 'px';
                     redCar.style.left = (30 + Math.cos(elapsed/400)*30) + 'px';
                 } else if (elapsed < 7000) {
-                    blueCar.style.left = '120px'; redCar.style.left = '60px';
+                    blueCar.style.left = '120px';
+                    redCar.style.left = '60px';
                 } else if (elapsed < 10000) {
-                    redCar.style.left = '180px'; blueCar.style.left = '80px';
+                    redCar.style.left = '180px';
+                    blueCar.style.left = '80px';
                 }
+
                 if (elapsed >= 10000) {
                     clearInterval(raceInterval);
                     finishRace();
@@ -353,11 +360,14 @@
 
         function finishRace() {
             finishLine.style.right = '0px';
+            
             setTimeout(() => {
                 redCar.style.transition = 'left 1.2s ease-in';
                 redCar.style.left = '150%';
+                
                 blueCar.classList.add('crash');
                 playNote(60, 0.6, 'sawtooth'); 
+                
                 setTimeout(() => {
                     document.getElementById('gameArea').classList.remove('racing');
                     awardOverlay.style.display = 'flex';
@@ -366,42 +376,63 @@
             }, 500);
         }
 
-        // FUNGSI HUJAN LOVE MANUAL (PASTI JALAN)
-        function createHeart() {
-            const heart = document.createElement('div');
-            heart.innerHTML = Math.random() > 0.5 ? '❤️' : '💙';
-            heart.style.position = 'absolute';
-            heart.style.left = Math.random() * 100 + '%';
-            heart.style.top = '-50px';
-            heart.style.fontSize = (Math.random() * 20 + 20) + 'px';
-            heart.style.zIndex = '1500';
-            heart.style.pointerEvents = 'none';
-            heart.style.transition = 'transform 3s linear, opacity 3s linear';
-            document.getElementById('gameArea').appendChild(heart);
-
-            setTimeout(() => {
-                heart.style.transform = `translateY(800px) rotate(${Math.random() * 360}deg)`;
-                heart.style.opacity = '0';
-            }, 100);
-
-            setTimeout(() => heart.remove(), 3100);
-        }
-
         claimBtn.addEventListener('click', () => {
             awardOverlay.style.display = 'none';
             dialogue.style.display = 'block';
             
-            // Jalankan Hujan Love
-            const heartInterval = setInterval(createHeart, 200);
-            setTimeout(() => clearInterval(heartInterval), 6000);
-
+            // 1. Teks mulai mengetik...
             typeWriter(message, 0, () => {
+                // 2. SETELAH TEKS SELESAI, BARU MELEDAK DI SINI!
                 const duration = 6 * 1000;
                 const end = Date.now() + duration;
+
+                // Definisi bentuk pixel kotak agar nuansanya retro
+                var pixels = confetti.shapeFromPath({ path: 'M0 0 L10 0 L10 10 L0 10 Z' });
+
                 (function frame() {
-                    confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#e63946', '#ffffff'] });
-                    confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#0066cc', '#ffffff'] });
-                    if (Date.now() < end) requestAnimationFrame(frame);
+                    // LEDAKAN KIRI (Merah + Hati Merah)
+                    confetti({
+                        particleCount: 2,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0, y: 0.8 },
+                        colors: ['#e63946', '#ffffff'],
+                        shapes: [pixels],
+                        scalar: 1.1
+                    });
+                    confetti({
+                        particleCount: 1,
+                        angle: 60,
+                        spread: 40,
+                        origin: { x: 0, y: 0.8 },
+                        shapes: ['text'],
+                        shapeOptions: { text: { value: ['❤️', '💖'] } },
+                        scalar: 2.5
+                    });
+
+                    // LEDAKAN KANAN (Biru + Hati Biru)
+                    confetti({
+                        particleCount: 2,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1, y: 0.8 },
+                        colors: ['#0066cc', '#ffffff'],
+                        shapes: [pixels],
+                        scalar: 1.1
+                    });
+                    confetti({
+                        particleCount: 1,
+                        angle: 120,
+                        spread: 40,
+                        origin: { x: 1, y: 0.8 },
+                        shapes: ['text'],
+                        shapeOptions: { text: { value: ['💙', '🩵'] } },
+                        scalar: 2.5
+                    });
+
+                    if (Date.now() < end) {
+                        requestAnimationFrame(frame);
+                    }
                 }());
             });
         });
