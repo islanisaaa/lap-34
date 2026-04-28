@@ -378,6 +378,73 @@
             }, 500);
         }
 
+        function typeWriter(text, i, fnCallback) {
+            if (i < text.length) {
+                if (text.substring(i, i + 4) === '<br>') {
+                    messageText.innerHTML += '<br>';
+                    i += 4;
+                } else {
+                    messageText.innerHTML += text.charAt(i);
+                    i++;
+                }
+                setTimeout(() => typeWriter(text, i, fnCallback), 50);
+            } else if (typeof fnCallback == 'function') {
+                fnCallback();
+            }
+        }
+
+        startBtn.addEventListener('click', () => {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            startOverlay.style.display = 'none';
+            document.getElementById('gameArea').classList.add('racing');
+            
+            redCar.style.left = '20px';
+            blueCar.style.left = '20px';
+
+            let startTime = Date.now();
+            let raceInterval = setInterval(() => {
+                let elapsed = Date.now() - startTime;
+                let display = (elapsed / 1000).toFixed(2);
+                timerText.innerText = display.padStart(5, '0');
+
+                if (Math.random() > 0.97) playNote(80 + Math.random()*40, 0.1, 'sawtooth');
+
+                if (elapsed < 4000) {
+                    blueCar.style.left = (30 + Math.sin(elapsed/400)*40) + 'px';
+                    redCar.style.left = (30 + Math.cos(elapsed/400)*30) + 'px';
+                } else if (elapsed < 7000) {
+                    blueCar.style.left = '120px';
+                    redCar.style.left = '60px';
+                } else if (elapsed < 10000) {
+                    redCar.style.left = '180px';
+                    blueCar.style.left = '80px';
+                }
+
+                if (elapsed >= 10000) {
+                    clearInterval(raceInterval);
+                    finishRace();
+                }
+            }, 50);
+        });
+
+        function finishRace() {
+            finishLine.style.right = '0px';
+            
+            setTimeout(() => {
+                redCar.style.transition = 'left 1.2s ease-in';
+                redCar.style.left = '150%';
+                
+                blueCar.classList.add('crash');
+                playNote(60, 0.6, 'sawtooth'); 
+                
+                setTimeout(() => {
+                    document.getElementById('gameArea').classList.remove('racing');
+                    awardOverlay.style.display = 'flex';
+                    playVictoryTheme();
+                }, 1000);
+            }, 500);
+        }
+
         claimBtn.addEventListener('click', () => {
             awardOverlay.style.display = 'none';
             dialogue.style.display = 'block';
@@ -426,7 +493,6 @@
                 }());
             });
         });
-
     </script>
 </body>
 </html>
