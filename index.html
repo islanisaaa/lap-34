@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roy's 34th GP: Hockenheimring</title>
+    <!-- Font Retro Video Game -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --pixel-red: #e63946;
+            --pixel-blue: #0066cc;
+            --pixel-grass: #4caf50;
+            --pixel-asphalt: #444;
+            --pixel-sky: #87ceeb;
+        }
+
+        body {
+            background-color: #111;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            overflow: hidden;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Efek CRT Scanline */
+        body::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            z-index: 1000;
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+        }
+
+        .game-screen {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            height: 500px;
+            background: var(--pixel-sky);
+            border: 8px solid #333;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(0,0,0,0.8);
+        }
+
+        /* Latar Belakang Bergerak (Parallax) */
+        .sky-bg {
+            position: absolute;
+            top: 0; width: 200%; height: 50%;
+            background: linear-gradient(to bottom, #29adff, #87ceeb);
+        }
+
+        .grass-bg {
+            position: absolute;
+            bottom: 0; width: 100%; height: 50%;
+            background: var(--pixel-grass);
+        }
+
+        .track {
+            position: absolute;
+            bottom: 20px;
+            width: 200%;
+            height: 120px;
+            background: var(--pixel-asphalt);
+            border-top: 6px solid #fff;
+            border-bottom: 6px solid #fff;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Animasi Scrolling Track */
+        .racing .track {
+            animation: scrollTrack 0.4s linear infinite;
+        }
+
+        @keyframes scrollTrack {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+
+        .track::after {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            background: repeating-linear-gradient(90deg, #fff, #fff 40px, transparent 40px, transparent 80px);
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* Mobil-mobil Samping */
+        .car {
+            position: absolute;
+            width: 140px;
+            height: 60px;
+            z-index: 100;
+            transition: left 0.5s ease-in-out, bottom 0.5s ease-in-out, transform 0.1s;
+        }
+
+        #red-car { bottom: 70px; left: -150px; }
+        #blue-car { bottom: 35px; left: -150px; }
+
+        .wheel {
+            animation: spin 0.2s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .engine-shake {
+            animation: shake 0.05s infinite;
+        }
+
+        @keyframes shake {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(1.5px); }
+            100% { transform: translateY(0); }
+        }
+
+        /* Animasi Nyusruk untuk Mobil Biru */
+        .crash {
+            animation: crashSpin 1s forwards !important;
+        }
+
+        @keyframes crashSpin {
+            0% { transform: rotate(0deg) translateY(0); left: inherit; }
+            30% { transform: rotate(180deg) translateY(-20px); left: 300px; }
+            60% { transform: rotate(360deg) translateY(40px); left: 350px; }
+            100% { transform: rotate(450deg) translateY(150px); left: 400px; opacity: 0.7; }
+        }
+
+        /* HUD UI */
+        .hud {
+            position: absolute;
+            top: 20px; width: 100%;
+            padding: 0 30px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 500;
+            font-size: 10px;
+            text-shadow: 2px 2px #000;
+        }
+
+        .hud-item {
+            background: rgba(0,0,0,0.7);
+            border: 2px solid #fff;
+            padding: 10px;
+        }
+
+        /* Finish Line */
+        #finish-line {
+            position: absolute;
+            right: -100px;
+            bottom: 20px;
+            width: 60px;
+            height: 120px;
+            background: repeating-linear-gradient(0deg, #fff, #fff 20px, #000 20px, #000 40px);
+            z-index: 10;
+            transition: right 1s ease-out;
+        }
+
+        /* Overlays */
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 800;
+        }
+
+        .btn-pixel {
+            background: #ffde03;
+            color: #000;
+            padding: 18px 36px;
+            border: 5px solid #fff;
+            cursor: pointer;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            box-shadow: 6px 6px 0px #bf360c;
+        }
+
+        .btn-pixel:hover { transform: scale(1.05); }
+
+        /* Dialogue Box */
+        #dialogue {
+            position: absolute;
+            bottom: 30px;
+            width: 90%;
+            left: 5%;
+            background: rgba(0,0,0,0.95);
+            border: 4px solid #fff;
+            padding: 25px;
+            display: none;
+            z-index: 900;
+            font-size: 11px;
+            line-height: 2;
+        }
+
+        .cursor { display: inline-block; width: 10px; height: 10px; background: #fff; animation: blink 0.8s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+    </style>
+</head>
+<body>
+
+    <div class="game-screen" id="gameArea">
+        <!-- Parallax Background -->
+        <div class="sky-bg"></div>
+        <div class="grass-bg"></div>
+        
+        <div class="hud">
+            <div class="hud-item">
+                PLAYER: ROY<br>
+                LEVEL: 34
+            </div>
+            <div class="hud-item" style="color: #00ff41">
+                TIME: <span id="timer">00.00</span>s
+            </div>
+        </div>
+
+        <!-- Lintasan -->
+        <div class="track" id="track"></div>
+        <div id="finish-line"></div>
+
+        <!-- Mobil Merah Audi RS5 (Side View) -->
+        <div id="red-car" class="car">
+            <svg viewBox="0 0 140 60" style="image-rendering: pixelated;" class="engine-shake">
+                <path d="M 10 45 L 20 30 L 110 30 L 130 45 Z" fill="#e63946" />
+                <rect x="15" y="45" width="115" height="10" fill="#e63946" />
+                <rect x="10" y="20" width="15" height="4" fill="#000" />
+                <rect x="15" y="24" width="2" height="6" fill="#000" />
+                <path d="M 40 30 L 55 15 L 90 15 L 105 30 Z" fill="#333" />
+                <path d="M 45 28 L 56 18 L 88 18 L 100 28 Z" fill="#87ceeb" opacity="0.6" />
+                <circle cx="35" cy="50" r="8" fill="#111" class="wheel" />
+                <circle cx="105" cy="50" r="8" fill="#111" class="wheel" />
+                <text x="40" y="44" font-family="Arial, sans-serif" font-size="11" fill="white" font-weight="900" style="paint-order: stroke; stroke: #000; stroke-width: 0.8px; letter-spacing: 0.5px;">ROVEX</text>
+            </svg>
+        </div>
+
+        <!-- Mobil Biru Audi RS5 (Side View) -->
+        <div id="blue-car" class="car">
+            <svg viewBox="0 0 140 60" style="image-rendering: pixelated;" class="engine-shake">
+                <path d="M 10 45 L 20 30 L 110 30 L 130 45 Z" fill="#0066cc" />
+                <rect x="15" y="45" width="115" height="10" fill="#0066cc" />
+                <rect x="10" y="20" width="15" height="4" fill="#000" />
+                <rect x="15" y="24" width="2" height="6" fill="#000" />
+                <path d="M 40 30 L 55 15 L 90 15 L 105 30 Z" fill="#333" />
+                <path d="M 45 28 L 56 18 L 88 18 L 100 28 Z" fill="#87ceeb" opacity="0.6" />
+                <circle cx="35" cy="50" r="8" fill="#111" class="wheel" />
+                <circle cx="105" cy="50" r="8" fill="#111" class="wheel" />
+            </svg>
+        </div>
+
+        <!-- Start Overlay -->
+        <div class="overlay" id="startOverlay">
+            <h1 class="text-xl mb-10 text-center">34th BIRTHDAY GP<br>HOCKENHEIMRING</h1>
+            <button class="btn-pixel" id="startBtn">START ENGINE</button>
+        </div>
+
+        <!-- Award Overlay -->
+        <div class="overlay" id="awardOverlay" style="display:none; background: transparent;">
+            <button class="btn-pixel" id="claimBtn" style="background: #00ff41;">CLAIM YOUR AWARD</button>
+        </div>
+
+        <!-- Dialogue Box -->
+        <div id="dialogue">
+            <div id="message-text"></div>
+            <div class="cursor"></div>
+        </div>
+    </div>
+
+    <!-- Script Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        const startBtn = document.getElementById('startBtn');
+        const claimBtn = document.getElementById('claimBtn');
+        const startOverlay = document.getElementById('startOverlay');
+        const awardOverlay = document.getElementById('awardOverlay');
+        const track = document.getElementById('track');
+        const redCar = document.getElementById('red-car');
+        const blueCar = document.getElementById('blue-car');
+        const timerText = document.getElementById('timer');
+        const finishLine = document.getElementById('finish-line');
+        const dialogue = document.getElementById('dialogue');
+        const messageText = document.getElementById('message-text');
+
+        // Simple 8-bit Music Synthesizer
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playNote(freq, duration, type = 'square') {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function playVictoryTheme() {
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((f, i) => {
+                setTimeout(() => playNote(f, 0.5, 'triangle'), i * 150);
+            });
+        }
+
+        const message = "ZIEL! YOU ARE THE CHAMPION! 🏆<br><br>Selamat ulang tahun yang ke-34, Roy! Kamu baru saja memenangkan balapan paling seru di Hockenheimring tahun ini.<br><br>Semoga di Level 34 ini, perjalananmu selalu dipenuhi kemenangan, kebahagiaan, dan cinta yang tulus. Teruslah melaju kencang mengejar mimpi!<br><br>Ich liebe dich! ❤️🏎️🏁";
+
+        function typeWriter(text, i, fnCallback) {
+            if (i < text.length) {
+                if (text.substring(i, i + 4) === '<br>') {
+                    messageText.innerHTML += '<br>';
+                    i += 4;
+                } else {
+                    messageText.innerHTML += text.charAt(i);
+                    i++;
+                }
+                setTimeout(() => typeWriter(text, i, fnCallback), 50);
+            } else if (typeof fnCallback == 'function') {
+                fnCallback();
+            }
+        }
+
+        startBtn.addEventListener('click', () => {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            startOverlay.style.display = 'none';
+            document.getElementById('gameArea').classList.add('racing');
+            
+            // Engine sound start
+            playNote(110, 0.1);
+            
+            redCar.style.left = '100px';
+            blueCar.style.left = '100px';
+
+            let startTime = Date.now();
+            let raceInterval = setInterval(() => {
+                let elapsed = Date.now() - startTime;
+                let display = (elapsed / 1000).toFixed(2);
+                timerText.innerText = display.padStart(5, '0');
+
+                // Race Engine Beep
+                if (Math.random() > 0.95) playNote(100 + Math.random()*50, 0.05, 'sawtooth');
+
+                if (elapsed < 4000) {
+                    blueCar.style.left = (100 + Math.sin(elapsed/400)*30) + 'px';
+                    redCar.style.left = (100 + Math.cos(elapsed/400)*20) + 'px';
+                } else if (elapsed < 7000) {
+                    blueCar.style.left = '250px';
+                    redCar.style.left = '150px';
+                } else if (elapsed < 10000) {
+                    redCar.style.left = '400px';
+                    blueCar.style.left = '200px';
+                }
+
+                if (elapsed >= 10000) {
+                    clearInterval(raceInterval);
+                    finishRace();
+                }
+            }, 50);
+        });
+
+        function finishRace() {
+            finishLine.style.right = '0px';
+            
+            setTimeout(() => {
+                // Mobil merah melesat menang
+                redCar.style.transition = 'left 1s ease-in';
+                redCar.style.left = '120%';
+                
+                // Mobil biru NYUSRUK!
+                blueCar.classList.add('crash');
+                playNote(50, 0.5, 'sawtooth'); // Crash sound
+                
+                setTimeout(() => {
+                    document.getElementById('gameArea').classList.remove('racing');
+                    awardOverlay.style.display = 'flex';
+                    playVictoryTheme();
+                }, 1000);
+            }, 500);
+        }
+
+        claimBtn.addEventListener('click', () => {
+            awardOverlay.style.display = 'none';
+            dialogue.style.display = 'block';
+            
+            typeWriter(message, 0, () => {
+                const duration = 5 * 1000;
+                const end = Date.now() + duration;
+
+                (function frame() {
+                    confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#e63946', '#ffffff'] });
+                    confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#0066cc', '#ffffff'] });
+                    if (Date.now() < end) requestAnimationFrame(frame);
+                }());
+            });
+        });
+
+    </script>
+</body>
+</html>
+
